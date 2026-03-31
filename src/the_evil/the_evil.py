@@ -63,22 +63,32 @@ def main():
     主函数
 
     命令行参数:
-        sys.argv[1]: cookie - 微博登录cookie
-        sys.argv[2]: uid - 微博用户ID
-        sys.argv[3]: output_file - 输出文件路径(可选)
-        sys.argv[4]: max_weibos - 最大获取微博数(可选, 0表示全部)
+        sys.argv[1]: cookie - 微博登录cookie（必填）
+        sys.argv[2]: uid - 微博用户ID（必填）
+        sys.argv[3]: output_file - 输出文件路径（必填）
+        sys.argv[4]: max_weibos - 最大获取微博数（必填，0表示全部）
+        sys.argv[5]: model - AI模型名称（必填）
+        sys.argv[6]: api_key - API密钥（必填）
+        sys.argv[7]: base_url - API地址（必填）
     """
 
     # 参数解析
-    if len(sys.argv) < 3:
-        print("用法: python the_evil.py <cookie> <uid> [output_file] [max_weibos]")
-        print('示例: python the_evil.py "cookie" 1223178222')
-        print('      python the_evil.py "cookie" 1223178222 output.csv 100')
+    if len(sys.argv) < 8:
+        print(
+            "用法: python the_evil.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>"
+        )
+        print(
+            '示例: python the_evil.py "cookie" 1223178222 output.csv 0 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"'
+        )
         sys.exit(1)
 
     cookie = sys.argv[1]
     user_id = sys.argv[2]
-    max_weibos = int(sys.argv[4]) if len(sys.argv) > 4 else 0
+    output_file = sys.argv[3]
+    max_weibos = int(sys.argv[4])
+    model = sys.argv[5]
+    api_key = sys.argv[6]
+    base_url = sys.argv[7]
 
     # 验证用户ID
     if not user_id.isdigit():
@@ -93,39 +103,32 @@ def main():
     print(f"用户: {user_info.nickname}")
     print(f"粉丝: {user_info.followers}, 微博: {user_info.weibo_num}")
 
-    # 确定输出文件名
-    if len(sys.argv) > 3 and sys.argv[3]:
-        output_file = sys.argv[3]
-    else:
-        output_file = f"{user_info.nickname}_weibo.csv"
-
     # 检查文件是否存在
-    skip_scraping = False
     if os.path.exists(output_file):
-        response = input(f"文件 {output_file} 已存在，是否跳过爬取直接分析? (y/n): ")
-        skip_scraping = response.lower() == "y"
-
-    # 爬取或跳过
-    if not skip_scraping:
+        print(f"文件 {output_file} 已存在，跳过爬取，直接进行分析...")
+    else:
         weibos = crawler.get_weibos(user_id, max_count=max_weibos)
         crawler.save_to_csv(user_info, weibos, output_file)
         print("完成!")
-    else:
-        print("跳过爬取，直接进行分析...")
 
     # AI分析
-    analyze_with_ai(output_file)
+    analyze_with_ai(output_file, model, api_key, base_url)
 
 
-def analyze_with_ai(csv_file):
+def analyze_with_ai(csv_file, model, api_key, base_url):
     """
     使用AI分析CSV文件
 
     参数:
         csv_file: CSV文件路径
+        model: AI模型名称
+        api_key: API密钥
+        base_url: API地址
     """
-    # 检查环境变量
-    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        print("警告: 未设置API密钥，跳过AI分析")
+        return
+
     if not api_key:
         print("警告: 未设置OPENAI_API_KEY环境变量，跳过AI分析")
         return
@@ -136,7 +139,7 @@ def analyze_with_ai(csv_file):
 
     # 创建AI分析器
     try:
-        analyzer = AIAnalyzer()
+        analyzer = AIAnalyzer(api_key=api_key, base_url=base_url)
     except ValueError as e:
         print(f"AI分析器初始化失败: {e}")
         return
@@ -144,16 +147,18 @@ def analyze_with_ai(csv_file):
     # 创建分析任务
     tasks = create_analysis_tasks(csv_content, prompts_module)
 
-    print("正在调用AI进行分析（7个任务并行）...")
+    print(f"正在调用AI进行分析（7个任务并行，使用模型: {model}）...")
 
     # 并行执行分析任务
-    results = analyzer.parallel_analyze(tasks, max_workers=7)
+    results = analyzer.parallel_analyze(tasks, max_workers=7, model=model)
 
     # 生成综合报告
     print("正在生成综合报告...")
 
     report_prompt = format_report_prompt(prompts_module, results)
-    final_report = analyzer.call_ai(prompts_module.REPORT_SYSTEM_PROMPT, report_prompt)
+    final_report = analyzer.call_ai(
+        prompts_module.REPORT_SYSTEM_PROMPT, report_prompt, model=model
+    )
 
     # 保存报告
     csv_filename = os.path.basename(csv_file)

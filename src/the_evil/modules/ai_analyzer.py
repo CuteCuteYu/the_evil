@@ -34,16 +34,16 @@ class AIAnalyzer:
     - 结果收集和整合
     """
 
-    def __init__(self):
+    def __init__(self, api_key=None, base_url=None):
         """
         初始化AI分析器
 
-        从环境变量读取API配置：
-        - OPENAI_API_KEY: API密钥
-        - OPENAI_BASE_URL: API基础URL（可选）
+        参数:
+            api_key: API密钥，默认从环境变量读取
+            base_url: API基础URL，默认从环境变量读取
         """
-        self.api_key = os.environ.get("OPENAI_API_KEY")
-        self.base_url = os.environ.get(
+        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        self.base_url = base_url or os.environ.get(
             "OPENAI_BASE_URL", "https://open.bigmodel.cn/api/coding/paas/v4"
         )
 
@@ -75,13 +75,14 @@ class AIAnalyzer:
         )
         return response.choices[0].message.content
 
-    def parallel_analyze(self, tasks, max_workers=None):
+    def parallel_analyze(self, tasks, max_workers=None, model="glm-4"):
         """
         并行执行多个AI分析任务
 
         参数:
             tasks: 任务列表，每个任务是一个元组 (system_prompt, user_prompt, task_name)
             max_workers: 最大并行数，默认根据任务数量自动设置
+            model: 使用的模型名称，默认glm-4
 
         返回:
             任务结果字典，key为task_name，value为分析结果
@@ -95,7 +96,9 @@ class AIAnalyzer:
             # 提交所有任务
             future_to_task = {}
             for system_prompt, user_prompt, task_name in tasks:
-                future = executor.submit(self.call_ai, system_prompt, user_prompt)
+                future = executor.submit(
+                    self.call_ai, system_prompt, user_prompt, model=model
+                )
                 future_to_task[future] = task_name
 
             # 收集结果

@@ -113,17 +113,11 @@ def call_ai(self, system_prompt, user_prompt, model="glm-4-flash", temperature=0
 ### 4. 运行程序
 
 ```bash
-# 基本用法
-python main.py <cookie> <uid> [output_file] [max_weibos]
+# 基本用法（所有参数必填）
+python main.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>
 
 # 示例：爬取胡歌的微博
-python main.py "你的Cookie" 1223178222
-
-# 指定输出文件名
-python main.py "你的Cookie" 1223178222 output.csv
-
-# 指定最大微博数
-python main.py "你的Cookie" 1223178222 output.csv 100
+python main.py "你的Cookie" 1223178222 output.csv 0 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
 ```
 
 ### 参数说明
@@ -132,8 +126,11 @@ python main.py "你的Cookie" 1223178222 output.csv 100
 |------|------|------|
 | cookie | 微博登录Cookie | 是 |
 | uid | 微博用户ID | 是 |
-| output_file | 输出CSV文件名 | 否 |
-| max_weibos | 最大获取微博数（0表示全部） | 否 |
+| output_file | 输出CSV文件名 | 是 |
+| max_weibos | 最大获取微博数（0表示全部） | 是 |
+| model | AI模型名称 | 是 |
+| api_key | API密钥 | 是 |
+| base_url | API地址 | 是 |
 
 ## 获取UID
 
@@ -162,7 +159,7 @@ python main.py "你的Cookie" 1223178222 output.csv 100
 
 ## 输出文件
 
-- **CSV文件** - 微博原始数据
+- **CSV文件** - 微博原始数据（如文件已存在则自动跳过爬取）
 - **Markdown报告** - AI分析结果
 
 ### 测试文件示例

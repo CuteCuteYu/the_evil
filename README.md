@@ -114,10 +114,10 @@ def call_ai(self, system_prompt, user_prompt, model="glm-4-flash", temperature=0
 
 ```bash
 # 基本用法（所有参数必填）
-python main.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>
+uv run python main.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>
 
 # 示例：爬取胡歌的微博
-python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
+uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
 ```
 
 ### 参数说明

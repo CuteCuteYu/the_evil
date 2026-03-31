@@ -1,0 +1,11 @@
+[project]
+name = "the-evil"
+version = "0.1.0"
+description = "至阴至邪 - 微博数据爬取与AI智能分析工具"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "lxml>=6.0.2",
+    "openai>=2.30.0",
+    "requests>=2.33.1",
+]

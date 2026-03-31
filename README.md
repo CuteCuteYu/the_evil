@@ -80,21 +80,23 @@ export OPENAI_BASE_URL="https://open.bigmodel.cn/api/coding/paas/v4"
 
 #### 支持的模型
 
-| 模型 | API地址 | 说明 |
-|------|---------|------|
-| GLM-4 | `https://open.bigmodel.cn/api/coding/paas/v4` | 默认模型 |
-| GLM-4-Flash | `https://open.bigmodel.cn/api/coding/paas/v4` | 免费版，速度快 |
-| GPT-4 | `https://api.openai.com/v1` | OpenAI官方 |
-| Claude-3 | `https://api.anthropic.com/v1` | Anthropic官方 |
+本项目仅支持兼容 OpenAI Python SDK 格式的 API（必须为 `https://xxx/v1` 格式）。只要 API 符合 OpenAI 格式，都可以正常使用，包括：
+
+- 智谱 GLM 系列模型（如 glm-4, glm-4-flash）
+- OpenAI GPT 系列模型（如 gpt-4, gpt-4o）
+- Anthropic Claude 系列模型（如 claude-3）
+- 其他兼容 OpenAI 格式的 API（如硅基流动、阿里的通义等）
 
 #### 自定义模型示例
 
+本项目通过设置 `base_url` 和 `api_key` 环境变量来使用不同的 AI 模型：
+
 ```bash
-# 使用GLM-4-Flash（免费快速）
-export OPENAI_API_KEY="your_api_key"
+# 使用智谱 GLM-4-Flash（免费快速）
+export OPENAI_API_KEY="your_zhipu_api_key"
 export OPENAI_BASE_URL="https://open.bigmodel.cn/api/coding/paas/v4"
 
-# 或使用OpenAI GPT-4
+# 或使用 OpenAI GPT-4
 export OPENAI_API_KEY="sk-xxx"
 export OPENAI_BASE_URL="https://api.openai.com/v1"
 ```

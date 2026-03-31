@@ -117,7 +117,7 @@ def call_ai(self, system_prompt, user_prompt, model="glm-4-flash", temperature=0
 python main.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>
 
 # 示例：爬取胡歌的微博
-python main.py "你的Cookie" 1223178222 output.csv 0 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
+python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
 ```
 
 ### 参数说明
@@ -127,7 +127,7 @@ python main.py "你的Cookie" 1223178222 output.csv 0 glm-4 "your_api_key" "http
 | cookie | 微博登录Cookie | 是 |
 | uid | 微博用户ID | 是 |
 | output_file | 输出CSV文件名 | 是 |
-| max_weibos | 最大获取微博数（0表示全部） | 是 |
+| max_weibos | 最大获取微博数（建议100，0表示全部） | 是 |
 | model | AI模型名称 | 是 |
 | api_key | API密钥 | 是 |
 | base_url | API地址 | 是 |
@@ -392,11 +392,60 @@ NEW_ANALYSIS_USER_PROMPT = """请分析xxx..."""
 
 仅供学习研究使用
 
-## Claude/OpenCode Skill 使用
+## Claude/OpenCode Skill 使用（必须使用二进制版本）
 
-本项目提供了 Claude/OpenCode 的 skill，可以更方便地使用本工具。
+> ⚠️ **强制要求**：本项目的 skill **必须使用编译后的二进制文件**，禁止直接运行 Python 源码。使用前请务必完成以下步骤。
 
-### 安装 Skill
+### 第一步：下载或编译二进制文件
+
+#### 方式A：直接使用已编译的二进制文件
+
+下载项目 release 中的 `the-evil.exe` 文件。
+
+#### 方式B：自行编译二进制文件
+
+```bash
+# 1. 安装 PyInstaller
+uv pip install pyinstaller
+
+# 2. 编译项目
+uv run pyinstaller the_evil.spec --noconfirm --distpath .
+
+# 3. 编译完成后，会在当前目录生成 the-evil.exe 文件
+```
+
+### 第二步：添加到系统环境变量
+
+将 `the-evil.exe` 所在目录添加到系统 PATH 环境变量：
+
+#### Windows PowerShell（管理员模式）
+
+```powershell
+# 假设 the-evil.exe 在 D:\code\python\the-evil 目录
+$currentPath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+[Environment]::SetEnvironmentVariable("Path", "$currentPath;D:\code\python\the-evil", "Machine")
+
+# 刷新环境变量
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
+```
+
+#### Windows CMD
+
+```cmd
+# 假设 the-evil.exe 在 D:\code\python\the-evil 目录
+setx PATH "%PATH%;D:\code\python\the-evil" /M
+```
+
+#### 验证安装
+
+```bash
+# 在任意目录打开命令行，输入以下命令验证
+the-evil.exe
+
+# 如果显示帮助信息，说明安装成功
+```
+
+### 第三步：安装 Skill
 
 将 `.claude/skills/the-evil` 目录复制到 Claude 的全局 skills 目录：
 
@@ -409,12 +458,11 @@ cp -r .claude/skills/the-evil C:/Users/j4543/.claude/skills/
 
 当在 Claude/OpenCode 中使用本项目时，AI 会自动加载 skill 并提供以下指导：
 - 检查项目目录是否正确
-- 使用 `uv sync` 安装依赖
-- 使用 `uv run python main.py` 运行程序
+- **验证 the-evil.exe 是否在 PATH 中**（强制检查）
+- 提示用户使用二进制文件运行程序
 
 ### Skill 功能
 
-- 自动检测当前目录是否包含 `pyproject.toml`
-- 如果不在项目目录，询问用户项目路径
-- 使用 `uv run` 执行 Python 脚本
-- 提供完整的使用参数说明
+- 检测 the-evil.exe 是否存在于 PATH 中
+- 如果不存在，提示用户按照上述步骤编译并添加到 PATH
+- 使用 `the-evil.exe` 命令执行程序

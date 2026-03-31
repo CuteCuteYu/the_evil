@@ -78,7 +78,7 @@ def main():
             "用法: python the_evil.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>"
         )
         print(
-            '示例: python the_evil.py "cookie" 1223178222 output.csv 0 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"'
+            '示例: python the_evil.py "cookie" 1223178222 output.csv 100 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"'
         )
         sys.exit(1)
 

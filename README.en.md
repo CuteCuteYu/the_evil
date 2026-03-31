@@ -64,7 +64,7 @@ After logging into Weibo, follow these steps to get the Cookie:
 uv run python main.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>
 
 # Example: crawl Hu Ge's Weibo
-uv run python main.py "your_cookie" 1223178222 output.csv 0 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
+uv run python main.py "your_cookie" 1223178222 output.csv 100 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
 ```
 
 ### Parameter Description
@@ -74,7 +74,7 @@ uv run python main.py "your_cookie" 1223178222 output.csv 0 glm-4 "your_api_key"
 | cookie      | Weibo login Cookie                               | Yes      |
 | uid         | Weibo user ID                                    | Yes      |
 | output_file | Output CSV filename                              | Yes      |
-| max_weibos  | Maximum number of Weibos (0 means all)           | Yes      |
+| max_weibos  | Maximum number of Weibos (recommended 100, 0 means all) | Yes |
 | model       | AI model name                                    | Yes      |
 | api_key     | API key                                          | Yes      |
 | base_url    | API address                                      | Yes      |

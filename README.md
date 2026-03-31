@@ -391,3 +391,30 @@ NEW_ANALYSIS_USER_PROMPT = """请分析xxx..."""
 ## 许可证
 
 仅供学习研究使用
+
+## Claude/OpenCode Skill 使用
+
+本项目提供了 Claude/OpenCode 的 skill，可以更方便地使用本工具。
+
+### 安装 Skill
+
+将 `.claude/skills/the-evil` 目录复制到 Claude 的全局 skills 目录：
+
+```bash
+# 复制 skill 目录到全局位置
+cp -r .claude/skills/the-evil C:/Users/j4543/.claude/skills/
+```
+
+### 使用 Skill
+
+当在 Claude/OpenCode 中使用本项目时，AI 会自动加载 skill 并提供以下指导：
+- 检查项目目录是否正确
+- 使用 `uv sync` 安装依赖
+- 使用 `uv run python main.py` 运行程序
+
+### Skill 功能
+
+- 自动检测当前目录是否包含 `pyproject.toml`
+- 如果不在项目目录，询问用户项目路径
+- 使用 `uv run` 执行 Python 脚本
+- 提供完整的使用参数说明

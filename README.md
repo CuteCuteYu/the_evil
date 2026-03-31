@@ -378,6 +378,8 @@ NEW_ANALYSIS_SYSTEM_PROMPT = """你是一个xxx专家..."""
 NEW_ANALYSIS_USER_PROMPT = """请分析xxx..."""
 ```
 
+> 📚 学习参考：[B站 AI 分析提示词教程](https://www.bilibili.com/video/BV13T4y1e7TK/)
+
 ## 注意事项
 
 1. **Cookie有效期**：Cookie会过期，如遇到登录错误请重新获取

@@ -24,6 +24,7 @@ AI分析器模块
 
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 
 from openai import OpenAI
 
@@ -34,7 +35,7 @@ try:
         DEFAULT_TEMPERATURE,
         MAX_WORKERS,
         API_KEY_ENV_VAR,
-        DEFAULT_BASE_URL
+        DEFAULT_BASE_URL,
     )
 except ImportError:
     # 回退到相对导入（当作为包直接导入时）
@@ -43,7 +44,7 @@ except ImportError:
         DEFAULT_TEMPERATURE,
         MAX_WORKERS,
         API_KEY_ENV_VAR,
-        DEFAULT_BASE_URL
+        DEFAULT_BASE_URL,
     )
 
 # 导入质量检查模块（核心功能，强制启用）
@@ -53,17 +54,20 @@ create_quality_checker = None
 
 try:
     from the_evil.modules.quality_checker import QualityChecker, create_quality_checker
+
     QUALITY_CHECK_AVAILABLE = True
 except ImportError:
     try:
         from .quality_checker import QualityChecker, create_quality_checker
+
         QUALITY_CHECK_AVAILABLE = True
     except ImportError:
         import warnings
+
         warnings.warn(
             "质量检查模块未找到，分析质量可能无法保证。"
             "请确保 quality_checker.py 文件存在于 modules 目录中。",
-            ImportWarning
+            ImportWarning,
         )
 
 
@@ -88,9 +92,7 @@ class AIAnalyzer:
             base_url: API基础URL，默认从环境变量读取
         """
         self.api_key = api_key or os.environ.get(API_KEY_ENV_VAR)
-        self.base_url = base_url or os.environ.get(
-            "OPENAI_BASE_URL", DEFAULT_BASE_URL
-        )
+        self.base_url = base_url or os.environ.get("OPENAI_BASE_URL", DEFAULT_BASE_URL)
 
         if not self.api_key:
             raise ValueError(f"未设置{API_KEY_ENV_VAR}环境变量")
@@ -176,7 +178,7 @@ class AIAnalyzer:
         quality_config=None,
         save_individual_reports=True,
         output_dir=None,
-        base_filename=None
+        base_filename=None,
     ):
         """
         并行执行多个AI分析任务（带质量检查，强制启用）
@@ -228,8 +230,12 @@ class AIAnalyzer:
         config = quality_config or {}
         quality_checker = create_quality_checker(
             min_length=config.get("min_length", QualityCheckConfig.MIN_LENGTH),
-            require_evidence=config.get("require_evidence", QualityCheckConfig.REQUIRE_EVIDENCE),
-            max_supplement_rounds=config.get("max_supplement_rounds", QualityCheckConfig.MAX_SUPPLEMENT_ROUNDS)
+            require_evidence=config.get(
+                "require_evidence", QualityCheckConfig.REQUIRE_EVIDENCE
+            ),
+            max_supplement_rounds=config.get(
+                "max_supplement_rounds", QualityCheckConfig.MAX_SUPPLEMENT_ROUNDS
+            ),
         )
 
         results = {}
@@ -244,7 +250,7 @@ class AIAnalyzer:
                     user_prompt,
                     task_name,
                     model,
-                    quality_checker
+                    quality_checker,
                 )
                 future_to_task[future] = task_name
 
@@ -258,7 +264,9 @@ class AIAnalyzer:
                     # 输出进度信息（质量检查信息）
                     score = result["quality_info"].get("score", 0)
                     rounds = result.get("supplement_rounds", 0)
-                    print(f"  [{task_name}] 分析完成 (质量评分: {score:.0f}, 补充轮数: {rounds})")
+                    print(
+                        f"  [{task_name}] 分析完成 (质量评分: {score:.0f}, 补充轮数: {rounds})"
+                    )
 
                     # 保存单个任务报告（强制执行）
                     if save_individual_reports and base_filename:
@@ -267,7 +275,7 @@ class AIAnalyzer:
                             content=result["content"],
                             output_dir=output_dir or ".",
                             base_filename=base_filename,
-                            quality_info=result["quality_info"]
+                            quality_info=result["quality_info"],
                         )
                         result["report_file"] = report_file
                         if report_file:
@@ -275,20 +283,12 @@ class AIAnalyzer:
 
                 except Exception as e:
                     print(f"  [{task_name}] 分析失败: {e}")
-                    results[task_name] = {
-                        "content": f"分析失败: {e}",
-                        "error": str(e)
-                    }
+                    results[task_name] = {"content": f"分析失败: {e}", "error": str(e)}
 
         return results
 
     def _analyze_single_with_quality(
-        self,
-        system_prompt,
-        user_prompt,
-        task_name,
-        model,
-        quality_checker
+        self, system_prompt, user_prompt, task_name, model, quality_checker
     ):
         """
         执行单个任务的分析（带质量检查）
@@ -315,17 +315,14 @@ class AIAnalyzer:
 
         # 执行质量检查和自动补充（核心功能，强制执行）
         supplement_result = quality_checker.check_and_supplement(
-            analyzer=self,
-            content=content,
-            task_name=task_name,
-            model=model
+            analyzer=self, content=content, task_name=task_name, model=model
         )
 
         return {
             "content": supplement_result["final_content"],
             "quality_info": supplement_result["check_result"],
             "supplement_rounds": supplement_result["supplement_rounds"],
-            "history": supplement_result.get("history", [])
+            "history": supplement_result.get("history", []),
         }
 
     def _save_individual_report(
@@ -334,7 +331,7 @@ class AIAnalyzer:
         content: str,
         output_dir: str,
         base_filename: str,
-        quality_info: dict
+        quality_info: dict,
     ) -> str:
         """
         保存单个任务的分析报告到本地Markdown文件
@@ -361,7 +358,8 @@ class AIAnalyzer:
             "interest": "兴趣爱好分析",
             "trajectory": "活动轨迹分析",
             "social": "社交圈子分析",
-            "emotion": "情感表达分析"
+            "emotion": "情感表达分析",
+            "social_engineering": "社会工程学攻击方案",
         }
 
         # 处理output_dir为空的情况
@@ -390,8 +388,8 @@ class AIAnalyzer:
 
 - **质量评分**: {score:.0f}/100
 - **补充轮数**: {supplement_rounds}
-- **通过检查**: {', '.join(passed_checks) if passed_checks else '无'}
-- **未通过检查**: {', '.join(failed_checks) if failed_checks else '无'}
+- **通过检查**: {", ".join(passed_checks) if passed_checks else "无"}
+- **未通过检查**: {", ".join(failed_checks) if failed_checks else "无"}
 
 ## 分析结果
 
@@ -415,6 +413,7 @@ class AIAnalyzer:
     def _get_current_time(self) -> str:
         """获取当前时间字符串"""
         from datetime import datetime
+
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -509,3 +508,89 @@ def format_report_prompt(prompts_module, results):
         result2_4=results.get("social", ""),
         result2_5=results.get("emotion", ""),
     )
+
+
+def generate_social_engineering_plan(
+    analyzer, report_content, csv_content, prompts_module, model=None
+):
+    """
+    生成社会工程学攻击方案
+
+    在综合报告生成后，基于报告和原始CSV数据生成攻击方案。
+
+    参数:
+        analyzer: AIAnalyzer实例
+        report_content: 综合分析报告内容
+        csv_content: 原始CSV数据（用于提取敏感信息）
+        prompts_module: 提示词模块对象
+        model: 模型名称，默认使用配置文件的DEFAULT_MODEL
+
+    返回:
+        社会工程学攻击方案内容字符串
+    """
+    if model is None:
+        model = DEFAULT_MODEL
+
+    user_prompt = prompts_module.SOCIAL_ENGINEERING_USER_PROMPT.format(
+        report_content=report_content, csv_content=csv_content[:10000]
+    )
+
+    result = analyzer.call_ai(
+        prompts_module.SOCIAL_ENGINEERING_SYSTEM_PROMPT, user_prompt, model=model
+    )
+
+    return result
+
+
+def save_social_engineering_report(content, output_dir, base_filename):
+    """
+    保存社会工程学攻击方案报告
+
+    参数:
+        content: 攻击方案内容
+        output_dir: 输出目录
+        base_filename: 基础文件名
+
+    返回:
+        保存的文件路径
+    """
+    import os
+
+    if not output_dir:
+        output_dir = "."
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    report_filename = f"{base_filename}_social_engineering.md"
+    report_path = os.path.join(output_dir, report_filename)
+
+    abs_report_path = os.path.abspath(report_path)
+
+    report_content = f"""# 社会工程学攻击方案
+
+## 伦理声明
+
+⚠️ **本报告仅供安全研究和防御演练使用**
+
+- 请勿将本方案用于未经授权的渗透测试
+- 旨在帮助目标人物加强安全意识，而非助长攻击行为
+- 生成的攻击方案应妥善保管，**不要分享给第三方**
+
+---
+
+## 攻击方案内容
+
+{content}
+
+---
+*报告生成时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}*
+*分析模型: {DEFAULT_MODEL}*
+"""
+
+    try:
+        with open(report_path, "w", encoding="utf-8") as f:
+            f.write(report_content)
+        return abs_report_path
+    except Exception as e:
+        print(f"保存社工攻击方案失败: {e}")
+        return ""

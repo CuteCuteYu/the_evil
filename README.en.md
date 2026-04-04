@@ -107,7 +107,20 @@ Each analysis conclusion must include an "**Analysis Evidence**" section, explai
 ## Output Files
 
 - **CSV File** - Raw Weibo data (if file exists, crawling will be skipped automatically)
-- **Markdown Report** - AI analysis results (auto-generated in the same directory as CSV)
+- **Comprehensive Markdown Report** - Complete AI analysis results (`{filename}_report.md`)
+- **Individual Task Reports** (auto-generated):
+  - `{filename}_statistics.md` - Statistical analysis report
+  - `{filename}_personality.md` - Personality analysis report
+  - `{filename}_interest.md` - Interest analysis report
+  - `{filename}_trajectory.md` - Trajectory analysis report
+  - `{filename}_social.md` - Social analysis report
+  - `{filename}_emotion.md` - Emotion analysis report
+- **Social Engineering Report** (auto-generated):
+  - `{filename}_social_engineering.md` - Social engineering attack plan (generated based on comprehensive report and CSV data, for security research only)
+
+### Workflow Optimization (Skip Existing Analysis)
+
+If the folder already contains a comprehensive report (`{filename}_report.md`) and CSV file, the program will **automatically skip** the information collection and report generation process and directly generate the social engineering attack plan, avoiding repeated API token consumption.
 
 ### Test Files Example
 

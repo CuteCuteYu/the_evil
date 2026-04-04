@@ -190,32 +190,49 @@ uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_k
 
 ## 输出文件
 
-- **CSV文件** - 微博原始数据（如文件已存在则自动跳过爬取）
-- **综合Markdown报告** - 完整的AI分析结果（`{文件名}_report.md`）
-- **单个任务报告**（自动生成）：
-  - `{文件名}_statistics.md` - 统计分析报告
-  - `{文件名}_personality.md` - 性格分析报告
-  - `{文件名}_interest.md` - 兴趣分析报告
-  - `{文件名}_trajectory.md` - 轨迹分析报告
-  - `{文件名}_social.md` - 社交分析报告
-  - `{文件名}_emotion.md` - 情感分析报告
-- **社工攻击方案**（自动生成）：
-  - `{文件名}_social_engineering.md` - 社会工程学攻击方案（基于综合报告和CSV数据生成，仅供安全研究）
-- **详细社工方案（5个AI agent，自动生成）**：
-  - `{文件名}_detailed_identity_disguise.md` - 身份伪装方案
-  - `{文件名}_detailed_social_media_channel.md` - 社交媒体渠道管理方案
-  - `{文件名}_detailed_script_preparation.md` - 话术准备方案
-  - `{文件名}_detailed_scenario_construction.md` - 场景构建方案
-  - `{文件名}_detailed_emotion_guidance.md` - 情感引导方案
+运行程序后，会生成以下文件：
+
+| 类型 | 文件名 | 说明 |
+|------|--------|------|
+| 数据 | `{文件名}.csv` | 微博原始数据 |
+| 综合报告 | `{文件名}_report.md` | 综合分析报告 |
+| 任务报告 | `{文件名}_statistics.md` | 统计分析报告 |
+| 任务报告 | `{文件名}_personality.md` | 性格分析报告 |
+| 任务报告 | `{文件名}_interest.md` | 兴趣分析报告 |
+| 任务报告 | `{文件名}_trajectory.md` | 轨迹分析报告 |
+| 任务报告 | `{文件名}_social.md` | 社交分析报告 |
+| 任务报告 | `{文件名}_emotion.md` | 情感分析报告 |
+| 社工方案 | `{文件名}_social_engineering.md` | 社会工程学攻击方案 |
+| 详细方案 | `{文件名}_detailed_identity_disguise.md` | 身份伪装方案 |
+| 详细方案 | `{文件名}_detailed_social_media_channel.md` | 社交媒体渠道管理方案 |
+| 详细方案 | `{文件名}_detailed_script_preparation.md` | 话术准备方案 |
+| 详细方案 | `{文件名}_detailed_scenario_construction.md` | 场景构建方案 |
+| 详细方案 | `{文件名}_detailed_emotion_guidance.md` | 情感引导方案 |
 
 ### 流程优化（跳过已有分析）
 
 如果文件夹中已有详细社工方案文件，程序会**自动跳过**所有分析流程。如果只有综合报告，则直接生成社工攻击方案和5个详细方案。如果只有CSV文件，则执行完整的8项AI分析任务。
 
-### 测试文件示例
+### 输出文件示例
 
-- CSV数据：[胡歌_the_evil.csv](胡歌_the_evil.csv)
-- 分析报告：[胡歌_the_evil_report.md](胡歌_the_evil_report.md)
+以用户"闫桉"为例，生成的文件列表：
+
+| 文件名 | 说明 |
+|--------|------|
+| `闫桉_the_evil.csv` | 微博原始数据 |
+| `闫桉_output_report.md` | 综合分析报告 |
+| `闫桉_output_statistics.md` | 统计分析报告 |
+| `闫桉_output_personality.md` | 性格分析报告 |
+| `闫桉_output_interest.md` | 兴趣分析报告 |
+| `闫桉_output_trajectory.md` | 轨迹分析报告 |
+| `闫桉_output_social.md` | 社交分析报告 |
+| `闫桉_output_emotion.md` | 情感分析报告 |
+| `闫桉_output_social_engineering.md` | 社会工程学攻击方案 |
+| `闫桉_output_detailed_identity_disguise.md` | 身份伪装详细方案 |
+| `闫桉_output_detailed_social_media_channel.md` | 社交媒体渠道管理详细方案 |
+| `闫桉_output_detailed_script_preparation.md` | 话术准备详细方案 |
+| `闫桉_output_detailed_scenario_construction.md` | 场景构建详细方案 |
+| `闫桉_output_detailed_emotion_guidance.md` | 情感引导详细方案 |
 
 ## 相关文档
 

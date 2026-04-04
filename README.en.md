@@ -108,32 +108,49 @@ Each analysis conclusion must include an "**Analysis Evidence**" section, explai
 
 ## Output Files
 
-- **CSV File** - Raw Weibo data (if file exists, crawling will be skipped automatically)
-- **Comprehensive Markdown Report** - Complete AI analysis results (`{filename}_report.md`)
-- **Individual Task Reports** (auto-generated):
-  - `{filename}_statistics.md` - Statistical analysis report
-  - `{filename}_personality.md` - Personality analysis report
-  - `{filename}_interest.md` - Interest analysis report
-  - `{filename}_trajectory.md` - Trajectory analysis report
-  - `{filename}_social.md` - Social analysis report
-  - `{filename}_emotion.md` - Emotion analysis report
-- **Social Engineering Report** (auto-generated):
-  - `{filename}_social_engineering.md` - Social engineering attack plan (generated based on comprehensive report and CSV data, for security research only)
-- **Detailed SE Plan (5 AI agents, auto-generated)**:
-  - `{filename}_detailed_identity_disguise.md` - Identity disguise plan
-  - `{filename}_detailed_social_media_channel.md` - Social media channel management plan
-  - `{filename}_detailed_script_preparation.md` - Script preparation plan
-  - `{filename}_detailed_scenario_construction.md` - Scenario construction plan
-  - `{filename}_detailed_emotion_guidance.md` - Emotion guidance plan
+Running the program generates the following files:
+
+| Type | Filename | Description |
+|------|----------|-------------|
+| Data | `{filename}.csv` | Raw Weibo data |
+| Comprehensive Report | `{filename}_report.md` | Comprehensive analysis report |
+| Task Report | `{filename}_statistics.md` | Statistical analysis report |
+| Task Report | `{filename}_personality.md` | Personality analysis report |
+| Task Report | `{filename}_interest.md` | Interest analysis report |
+| Task Report | `{filename}_trajectory.md` | Trajectory analysis report |
+| Task Report | `{filename}_social.md` | Social analysis report |
+| Task Report | `{filename}_emotion.md` | Emotion analysis report |
+| SE Plan | `{filename}_social_engineering.md` | Social engineering attack plan |
+| Detailed Plan | `{filename}_detailed_identity_disguise.md` | Identity disguise plan |
+| Detailed Plan | `{filename}_detailed_social_media_channel.md` | Social media channel management plan |
+| Detailed Plan | `{filename}_detailed_script_preparation.md` | Script preparation plan |
+| Detailed Plan | `{filename}_detailed_scenario_construction.md` | Scenario construction plan |
+| Detailed Plan | `{filename}_detailed_emotion_guidance.md` | Emotion guidance plan |
 
 ### Workflow Optimization (Skip Existing Analysis)
 
 If the folder already contains detailed SE plan files, the program will **automatically skip** all analysis. If only comprehensive report exists, it will directly generate the social engineering plan and 5 detailed plans. If only CSV exists, it will execute all 8 AI analysis tasks.
 
-### Test Files Example
+### Output File Example
 
-- CSV data: [胡歌_the_evil.csv](胡歌_the_evil.csv)
-- Analysis report: [胡歌_the_evil_report.md](胡歌_the_evil_report.md)
+Using user "闫桉" as example, the generated files:
+
+| Filename | Description |
+|----------|-------------|
+| `闫桉_the_evil.csv` | Raw Weibo data |
+| `闫桉_output_report.md` | Comprehensive analysis report |
+| `闫桉_output_statistics.md` | Statistical analysis report |
+| `闫桉_output_personality.md` | Personality analysis report |
+| `闫桉_output_interest.md` | Interest analysis report |
+| `闫桉_output_trajectory.md` | Trajectory analysis report |
+| `闫桉_output_social.md` | Social analysis report |
+| `闫桉_output_emotion.md` | Emotion analysis report |
+| `闫桉_output_social_engineering.md` | Social engineering attack plan |
+| `闫桉_output_detailed_identity_disguise.md` | Identity disguise detailed plan |
+| `闫桉_output_detailed_social_media_channel.md` | Social media channel management detailed plan |
+| `闫桉_output_detailed_script_preparation.md` | Script preparation detailed plan |
+| `闫桉_output_detailed_scenario_construction.md` | Scenario construction detailed plan |
+| `闫桉_output_detailed_emotion_guidance.md` | Emotion guidance detailed plan |
 
 ## Related Documentation
 

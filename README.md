@@ -516,6 +516,55 @@ def get_quality_check_prompt(task_name):
     return prompts.get(task_name, prompts["default"])
 ```
 
+#### 5. 修改质量检查提示词
+
+除了 `prompts.py` 中的分析提示词，`modules/quality_check_prompts.py` 中的质量检查提示词也可以修改。这些提示词用于在AI生成分析结果后，检查内容是否完整并补充缺失部分。
+
+```python
+# 修改统计分析的质量检查提示词
+STATISTICS_QUALITY_SYSTEM_PROMPT = """你是一个数据分析质量检查专家..."""
+STATISTICS_QUALITY_USER_PROMPT = """请对以下统计分析结果进行质量检查...
+
+【原始分析结果】
+{original_content}
+
+【质量检查标准】
+请检查以下项目是否完整：
+1. 微博总数统计
+2. 原创/转发比例
+...
+"""
+
+# 修改性格分析的质量检查提示词
+PERSONALITY_QUALITY_SYSTEM_PROMPT = """你是一个社会工程学专家..."""
+PERSONALITY_QUALITY_USER_PROMPT = """请对以下性格特点分析结果进行质量检查...
+
+【原始分析结果】
+{original_content}
+
+【质量检查标准】
+请检查以下分析维度是否完整：
+1. 性格类型分析
+2. 社交媒体行为模式
+...
+"""
+```
+
+**可修改的质量检查提示词列表**：
+
+| 变量名 | 对应分析任务 | 检查内容 |
+|--------|--------------|----------|
+| `STATISTICS_QUALITY_*` | 统计分析 | 数据完整性、数值准确性 |
+| `PERSONALITY_QUALITY_*` | 性格分析 | 分析依据引用、结论深度 |
+| `INTEREST_QUALITY_*` | 兴趣分析 | 分类全面性、具体引用 |
+| `TRAJECTORY_QUALITY_*` | 轨迹分析 | 时间规律、地点证据 |
+| `SOCIAL_QUALITY_*` | 社交分析 | 关系网络、互动数据 |
+| `EMOTION_QUALITY_*` | 情感分析 | 情感倾向、表达方式 |
+
+每个质量检查提示词包含：
+- `SYSTEM_PROMPT`: 定义检查专家的角色
+- `USER_PROMPT`: 定义检查标准和补充要求，包含 `{original_content}` 占位符
+
 > 📚 学习参考：[B站 AI 分析提示词教程](https://www.bilibili.com/video/BV13T4y1e7TK/)
 
 ## 注意事项

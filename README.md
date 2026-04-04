@@ -11,7 +11,7 @@
 **the-evil** 是一个模块化的微博数据爬取和AI智能分析工具，支持：
 
 - 爬取微博用户数据（使用 weibo.cn 移动端API）
-- 7个并行AI分析任务（使用GLM-4模型）
+- 8个并行AI分析任务 + 5个详细社工方案生成（使用GLM-4模型）
 - 生成Markdown格式的详细分析报告
 
 ## 目录结构
@@ -131,7 +131,7 @@ MAX_WORKERS = 7
 uv run python main.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>
 
 # 示例：爬取胡歌的微博
-uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
+uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4.7 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
 ```
 
 ### 参数说明

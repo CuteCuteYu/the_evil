@@ -11,7 +11,7 @@ Author: CuteCuteYu
 **the-evil** is a modular Weibo data crawler and AI intelligent analysis tool, supporting:
 
 - Crawling Weibo user data (using weibo.cn mobile API)
-- 7 parallel AI analysis tasks (using GLM-4 model)
+- 8 parallel AI analysis tasks + 5 detailed SE plan generation (using GLM-4 model)
 - Generating detailed analysis reports in Markdown format
 
 ## Directory Structure
@@ -64,7 +64,7 @@ After logging into Weibo, follow these steps to get the Cookie:
 uv run python main.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>
 
 # Example: crawl Hu Ge's Weibo
-uv run python main.py "your_cookie" 1223178222 output.csv 100 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
+uv run python main.py "your_cookie" 1223178222 output.csv 100 glm-4.7 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
 ```
 
 ### Parameter Description

@@ -6,22 +6,31 @@ the-evil 主程序
 微博数据爬取和分析工具，支持：
 1. 爬取微博用户数据
 2. AI智能分析（7个并行任务）
-3. 生成Markdown分析报告
+3. 质量检查与自动补充（强制启用）
+4. 生成Markdown分析报告
 
 使用方法:
-    python -m the_evil.the_evil <cookie> <uid> [output_file] [max_weibos]
+    python -m the_evil.the_evil <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>
 
 示例:
-    python -m the_evil.the_evil "cookie" 1223178222
-    python -m the_evil.the_evil "cookie" 1223178222 output.csv 100
+    python -m the_evil.the_evil "cookie" 1223178222 output.csv 100 glm-4.7 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"
+
+注意：所有模型相关配置可在 modules/config.py 中统一修改
 
 作者: CuteCuteYu
-版本: 1.0.0
+版本: 2.0.0
 """
 
 import os
 import sys
 import importlib.util
+
+# 将src目录添加到sys.path，使绝对导入可以工作
+# 这样 from the_evil.modules.xxx import ... 就能正常工作
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.dirname(current_dir)
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
 
 
 # 动态导入模块，避免包导入问题
@@ -32,10 +41,6 @@ def import_module_from_path(module_name, file_path):
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
     return module
-
-
-# 获取当前文件路径
-current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # 导入crawlers模块
 crawlers = import_module_from_path(
@@ -70,6 +75,8 @@ def main():
         sys.argv[5]: model - AI模型名称（必填）
         sys.argv[6]: api_key - API密钥（必填）
         sys.argv[7]: base_url - API地址（必填）
+
+    注意：质量检查功能强制启用，确保AI分析结果的完整性和可靠性
     """
 
     # 参数解析
@@ -78,7 +85,7 @@ def main():
             "用法: python the_evil.py <cookie> <uid> <output_file> <max_weibos> <model> <api_key> <base_url>"
         )
         print(
-            '示例: python the_evil.py "cookie" 1223178222 output.csv 100 glm-4 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"'
+            '示例: python the_evil.py "cookie" 1223178222 output.csv 100 glm-4.7 "your_api_key" "https://open.bigmodel.cn/api/coding/paas/v4"'
         )
         sys.exit(1)
 
@@ -111,26 +118,26 @@ def main():
         crawler.save_to_csv(user_info, weibos, output_file)
         print("完成!")
 
-    # AI分析
+    # AI分析（质量检查强制启用）
     analyze_with_ai(output_file, model, api_key, base_url)
 
 
 def analyze_with_ai(csv_file, model, api_key, base_url):
     """
-    使用AI分析CSV文件
+    使用AI分析CSV文件（质量检查和单任务报告保存强制启用）
 
     参数:
         csv_file: CSV文件路径
         model: AI模型名称
         api_key: API密钥
         base_url: API地址
+
+    注意：
+    - 本函数强制启用质量检查功能，确保AI分析结果的完整性和可靠性
+    - 本函数强制保存每个任务的分析报告，便于调试和查看
     """
     if not api_key:
         print("警告: 未设置API密钥，跳过AI分析")
-        return
-
-    if not api_key:
-        print("警告: 未设置OPENAI_API_KEY环境变量，跳过AI分析")
         return
 
     # 读取CSV内容
@@ -147,10 +154,52 @@ def analyze_with_ai(csv_file, model, api_key, base_url):
     # 创建分析任务
     tasks = create_analysis_tasks(csv_content, prompts_module)
 
-    print(f"正在调用AI进行分析（7个任务并行，使用模型: {model}）...")
+    # 获取输出目录和基础文件名（用于保存单个任务报告）
+    import os
+    csv_dir = os.path.dirname(csv_file)
+    # 如果csv_dir为空（文件在当前目录），使用当前目录
+    if not csv_dir:
+        csv_dir = "."
+    csv_filename = os.path.basename(csv_file)
+    base_filename = csv_filename.replace(".csv", "")
 
-    # 并行执行分析任务
-    results = analyzer.parallel_analyze(tasks, max_workers=7, model=model)
+    # 强制使用带质量检查的并行分析，并保存单个任务报告
+    print(f"正在调用AI进行分析（7个任务并行，使用模型: {model}，质量检查已强制启用）...")
+
+    enhanced_results = analyzer.parallel_analyze_with_quality_check(
+        tasks,
+        max_workers=7,
+        model=model,
+        enable_quality_check=True,
+        save_individual_reports=True,  # 强制保存单个任务报告
+        output_dir=csv_dir,
+        base_filename=base_filename
+    )
+
+    # 从增强结果中提取内容用于报告生成
+    results = {}
+    quality_summary = []
+
+    for task_name, result_data in enhanced_results.items():
+        results[task_name] = result_data.get("content", "")
+
+        # 收集质量检查信息
+        quality_info = result_data.get("quality_info")
+        if quality_info:
+            rounds = result_data.get("supplement_rounds", 0)
+            score = quality_info.get("score", 0)
+            quality_summary.append({
+                "task": task_name,
+                "score": score,
+                "rounds": rounds
+            })
+
+    # 输出质量检查摘要
+    if quality_summary:
+        print("\n=== 质量检查摘要 ===")
+        for item in quality_summary:
+            print(f"  [{item['task']}] 评分: {item['score']:.0f}, 补充轮数: {item['rounds']}")
+        print("====================\n")
 
     # 生成综合报告
     print("正在生成综合报告...")

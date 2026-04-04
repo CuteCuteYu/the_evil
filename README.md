@@ -25,7 +25,10 @@ the-evil/
 │       ├── __init__.py     # 模块初始化
 │       ├── crawlers.py     # 爬虫模块（可扩展到其他网站）
 │       ├── ai_analyzer.py  # AI分析器（并行任务执行）
-│       └── prompts.py      # AI分析提示词（7种分析类型）
+│       ├── prompts.py      # AI分析提示词（7种分析类型）
+│       ├── quality_checker.py      # 质量检查模块（核心功能，强制启用）
+│       ├── quality_check_prompts.py # 质量检查提示词（为每个分析任务定制）
+│       └── config.py       # 统一配置模块（集中管理所有模型配置）
 ├── main.py                  # 程序入口
 ├── pyproject.toml          # 项目配置
 └── README.md               # 说明文档
@@ -103,14 +106,23 @@ export OPENAI_BASE_URL="https://api.openai.com/v1"
 
 #### 代码中修改默认模型
 
-在 `modules/ai_analyzer.py` 中修改默认模型：
+在 `modules/config.py` 中统一修改所有模型相关配置：
 
 ```python
-# 修改 call_ai 方法的 model 参数
-def call_ai(self, system_prompt, user_prompt, model="glm-4-flash", temperature=0.7):
-    # 将 model="glm-4" 改为 "glm-4-flash" 或其他模型
-    pass
+# 修改默认模型
+DEFAULT_MODEL = "glm-4.7"  # 改为你想使用的模型
+
+# 修改温度参数
+DEFAULT_TEMPERATURE = 0.7
+
+# 修改默认API地址
+DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/coding/paas/v4"
+
+# 修改并发数
+MAX_WORKERS = 7
 ```
+
+修改 `config.py` 后，所有使用这些配置的代码会自动使用新值，无需逐个修改。
 
 ### 4. 运行程序
 
@@ -142,7 +154,7 @@ uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_k
 
 ## AI分析功能
 
-程序会自动进行7项并行AI分析：
+程序会自动进行7项并行AI分析，并包含**强制启用的质量检查**功能：
 
 1. **统计分析** - 微博数量、互动数据、发布时间分布等
 2. **性格分析** - 从社会工程学角度分析用户性格特征
@@ -151,6 +163,21 @@ uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_k
 5. **社交分析** - 从社交网络角度分析用户社交圈子
 6. **情感分析** - 从心理分析角度用户情感表达方式
 7. **综合报告** - 生成完整的Markdown分析报告
+
+### 质量检查功能（强制启用）
+
+每个AI分析任务完成后，会自动进行质量检查：
+- **长度检查** - 确保内容长度达标
+- **完整性检查** - 确保包含所有必需的分析维度
+- **分析依据检查** - 确保每个结论都有数据支撑
+- **自动补充** - 如果检查不通过，自动请求AI补充缺失内容
+
+### 单个任务报告（强制保存）
+
+每个分析任务通过质量检查后，会自动保存独立的Markdown报告：
+- 文件命名：`{基础文件名}_{任务名称}.md`
+- 例如：`用户名_statistics.md`、`用户名_personality.md`
+- 报告包含：质量评分、补充轮数、完整的分析结果
 
 ### 分析依据要求
 
@@ -162,7 +189,14 @@ uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_k
 ## 输出文件
 
 - **CSV文件** - 微博原始数据（如文件已存在则自动跳过爬取）
-- **Markdown报告** - AI分析结果
+- **综合Markdown报告** - 完整的AI分析结果（`{文件名}_report.md`）
+- **单个任务报告**（自动生成）：
+  - `{文件名}_statistics.md` - 统计分析报告
+  - `{文件名}_personality.md` - 性格分析报告
+  - `{文件名}_interest.md` - 兴趣分析报告
+  - `{文件名}_trajectory.md` - 轨迹分析报告
+  - `{文件名}_social.md` - 社交分析报告
+  - `{文件名}_emotion.md` - 情感分析报告
 
 ### 测试文件示例
 
@@ -388,6 +422,13 @@ NEW_ANALYSIS_USER_PROMPT = """请分析xxx..."""
 
 ## 版本历史
 
+- **v2.0.0** - 质量检查版本
+  - 新增强制启用的质量检查功能
+  - 新增单个任务报告自动保存
+  - 新增统一配置模块（config.py）
+  - 新增任务特定的质量检查提示词
+  - 修改默认模型为 glm-4.7
+  - 修复导入问题（支持绝对导入和相对导入自动回退）
 - v1.0.0 - 初始版本，支持微博数据爬取和7项AI分析
 
 ## 许可证

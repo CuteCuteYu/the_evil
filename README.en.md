@@ -307,6 +307,85 @@ Helper methods provided by `BaseCrawler`:
 | `_build_headers()`                       | Build request headers          |
 | `save_to_csv(user_info, weibos, output_file)` | Save data to CSV      |
 
+### Modify AI Analysis Prompts
+
+You can modify or add prompts in the following files:
+
+#### 1. Modify Analysis Task Prompts
+
+In `modules/prompts.py`, modify or add new prompts:
+
+```python
+# Modify statistical analysis prompts
+STATISTICS_SYSTEM_PROMPT = """You are a data analysis expert..."""
+STATISTICS_USER_PROMPT = """Please analyze the statistical data..."""
+
+# Modify personality analysis prompts
+PERSONALITY_SYSTEM_PROMPT = """You are a social engineering expert..."""
+PERSONALITY_USER_PROMPT = """Please analyze the personality traits..."""
+```
+
+#### 2. Modifiable Analysis Tasks
+
+| Variable | Analysis Task |
+|----------|---------------|
+| `STATISTICS_*` | Statistical analysis |
+| `PERSONALITY_*` | Personality analysis |
+| `INTEREST_*` | Interest analysis |
+| `TRAJECTORY_*` | Trajectory analysis |
+| `SOCIAL_*` | Social analysis |
+| `EMOTION_*` | Emotion analysis |
+| `REPORT_*` | Comprehensive report |
+| `SOCIAL_ENGINEERING_*` | Social engineering plan |
+| `IDENTITY_DISGUISE_*` | Identity disguise plan |
+| `SOCIAL_MEDIA_CHANNEL_*` | Social media channel plan |
+| `SCRIPT_PREPARATION_*` | Script preparation plan |
+| `SCENARIO_CONSTRUCTION_*` | Scenario construction plan |
+| `EMOTION_GUIDANCE_*` | Emotion guidance plan |
+
+#### 3. Add New Analysis Tasks
+
+Add new prompts in `prompts.py` and register in `ai_analyzer.py`:
+
+```python
+# Add new analysis task
+NEW_TASK_SYSTEM_PROMPT = """You are an expert in xxx..."""
+NEW_TASK_USER_PROMPT = """Please analyze xxx..."""
+```
+
+Then add to `create_analysis_tasks()` function.
+
+#### 4. Modify Quality Check Prompts
+
+In `modules/quality_check_prompts.py`, modify quality check prompts:
+
+```python
+# Modify statistics quality check prompts
+STATISTICS_QUALITY_SYSTEM_PROMPT = """You are a data analysis quality expert..."""
+STATISTICS_QUALITY_USER_PROMPT = """Please check the quality of the analysis...
+
+【Original Analysis Result】
+{original_content}
+
+【Quality Check Criteria】
+Please check if the following are complete:
+1. Weibo count statistics
+2. Original/retweet ratio
+...
+"""
+```
+
+**Quality check prompts list**:
+
+| Variable | Corresponding Task | Check Content |
+|----------|-------------------|---------------|
+| `STATISTICS_QUALITY_*` | Statistical analysis | Data completeness |
+| `PERSONALITY_QUALITY_*` | Personality analysis | Analysis evidence |
+| `INTEREST_QUALITY_*` | Interest analysis | Classification completeness |
+| `TRAJECTORY_QUALITY_*` | Trajectory analysis | Time patterns, location evidence |
+| `SOCIAL_QUALITY_*` | Social analysis | Relationship network |
+| `EMOTION_QUALITY_*` | Emotion analysis | Emotional expression |
+
 ## Notes
 
 1. **Cookie Validity**: Cookies expire. If you encounter login errors, please get a new cookie.

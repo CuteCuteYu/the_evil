@@ -439,12 +439,81 @@ tweets = crawler.get_weibos("elonmusk", max_count=100)
 
 ### 修改AI分析提示词
 
-在 `modules/prompts.py` 中修改或添加新的提示词：
+在 `modules/prompts.py` 中可以修改或添加以下内容：
+
+#### 1. 修改现有分析任务的提示词
+
+每个分析任务的提示词包含两个部分：
+- `SYSTEM_PROMPT`: 定义AI的角色和身份
+- `USER_PROMPT`: 定义分析要求和格式
 
 ```python
-NEW_ANALYSIS_SYSTEM_PROMPT = """你是一个xxx专家..."""
+# 修改统计分析的提示词
+STATISTICS_SYSTEM_PROMPT = """你是一个xxx专家..."""
+STATISTICS_USER_PROMPT = """请分析xxx..."""
 
-NEW_ANALYSIS_USER_PROMPT = """请分析xxx..."""
+# 修改性格分析的提示词
+PERSONALITY_SYSTEM_PROMPT = """你是一个社会工程学专家..."""
+PERSONALITY_USER_PROMPT = """请从社会工程学角度分析xxx..."""
+```
+
+#### 2. 可修改的分析任务列表
+
+| 变量名 | 分析任务 | 说明 |
+|--------|----------|------|
+| `STATISTICS_*` | 统计分析 | 微博数量、互动数据、时间分布等 |
+| `PERSONALITY_*` | 性格分析 | 社会工程学角度的性格特征分析 |
+| `INTEREST_*` | 兴趣分析 | 兴趣爱好、关注领域、消费倾向 |
+| `TRAJECTORY_*` | 轨迹分析 | OSINT角度的活动轨迹和生活习惯 |
+| `SOCIAL_*` | 社交分析 | 社交网络、圈子、影响力分析 |
+| `EMOTION_*` | 情感分析 | 心理分析角度的情感表达方式 |
+| `REPORT_*` | 综合报告 | 整合所有分析生成完整报告 |
+| `SOCIAL_ENGINEERING_*` | 社工攻击方案 | 基于分析结果生成攻击方案 |
+| `IDENTITY_DISGUISE_*` | 身份伪装方案 | 详细社工方案-身份伪装 |
+| `SOCIAL_MEDIA_CHANNEL_*` | 社交媒体渠道方案 | 详细社工方案-渠道管理 |
+| `SCRIPT_PREPARATION_*` | 话术准备方案 | 详细社工方案-话术设计 |
+| `SCENARIO_CONSTRUCTION_*` | 场景构建方案 | 详细社工方案-场景设计 |
+| `EMOTION_GUIDANCE_*` | 情感引导方案 | 详细社工方案-情感引导 |
+
+#### 3. 添加新的分析任务
+
+在 `prompts.py` 中添加新的提示词定义：
+
+```python
+# 添加新的分析任务
+NEW_TASK_SYSTEM_PROMPT = """你是一个xxx领域的专家..."""
+NEW_TASK_USER_PROMPT = """请分析xxx..."""
+```
+
+然后在 `ai_analyzer.py` 的 `create_analysis_tasks()` 函数中注册新任务：
+
+```python
+# 在 tasks 列表中添加新任务
+tasks = [
+    # ... 现有任务 ...
+    {
+        "name": "new_task",
+        "system_prompt": NEW_TASK_SYSTEM_PROMPT,
+        "user_prompt": NEW_TASK_USER_PROMPT,
+    },
+]
+```
+
+#### 4. 修改质量检查提示词
+
+在 `modules/quality_check_prompts.py` 中可以修改每个分析任务的质量检查标准：
+
+```python
+# 修改特定任务的质量检查提示词
+def get_quality_check_prompt(task_name):
+    prompts = {
+        "statistics": {
+            "system": "你是数据分析专家，请审查分析结果的质量...",
+            "user": "请检查统计分析报告是否完整准确..."
+        },
+        # 添加或修改其他任务...
+    }
+    return prompts.get(task_name, prompts["default"])
 ```
 
 > 📚 学习参考：[B站 AI 分析提示词教程](https://www.bilibili.com/video/BV13T4y1e7TK/)

@@ -161,7 +161,15 @@ the-evil.exe "cookie" 1223178222 output.csv 100 gpt-4 "sk-xxx" "https://api.open
   - `{文件名}_emotion.md` - 情感分析报告
 - **社工攻击方案**（自动生成）：
   - `{文件名}_social_engineering.md` - 社会工程学攻击方案（基于综合报告和CSV数据生成，仅供安全研究）
+- **详细社工方案**（5个Agent并行生成）：
+  - `{文件名}_detailed_identity_disguise.md` - 身份伪装详细方案
+  - `{文件名}_detailed_social_media_channel.md` - 社交媒体渠道管理详细方案
+  - `{文件名}_detailed_script_preparation.md` - 话术准备详细方案
+  - `{文件名}_detailed_scenario_construction.md` - 场景构造详细方案
+  - `{文件名}_detailed_emotion_guidance.md` - 情绪引导详细方案
 
 ### 流程优化（跳过已有分析）
 
-如果文件夹中已有综合报告（`{文件名}_report.md`）和CSV文件，程序会**自动跳过**信息收集和报告生成流程，直接生成社工攻击方案，避免重复消耗API tokens。
+如果文件夹中已有详细社工方案（全部5个），程序会**全部跳过**生成流程。
+如果已有社会工程学攻击方案，会直接读取并生成5个详细方案。
+如果已有综合报告和CSV，会生成社工攻击方案后再生成5个详细方案。

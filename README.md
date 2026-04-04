@@ -164,6 +164,7 @@ uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_k
 6. **情感分析** - 从心理分析角度用户情感表达方式
 7. **综合报告** - 生成完整的Markdown分析报告
 8. **社工攻击方案** - 基于分析结果生成社会工程学攻击方案（仅供安全研究）
+9. **详细社工方案（5个AI agent）** - 基于社工攻击方案生成5个详细实施计划
 
 ### 质量检查功能（强制启用）
 
@@ -200,15 +201,26 @@ uv run python main.py "你的Cookie" 1223178222 output.csv 100 glm-4 "your_api_k
   - `{文件名}_emotion.md` - 情感分析报告
 - **社工攻击方案**（自动生成）：
   - `{文件名}_social_engineering.md` - 社会工程学攻击方案（基于综合报告和CSV数据生成，仅供安全研究）
+- **详细社工方案（5个AI agent，自动生成）**：
+  - `{文件名}_detailed_identity_disguise.md` - 身份伪装方案
+  - `{文件名}_detailed_social_media_channel.md` - 社交媒体渠道管理方案
+  - `{文件名}_detailed_script_preparation.md` - 话术准备方案
+  - `{文件名}_detailed_scenario_construction.md` - 场景构建方案
+  - `{文件名}_detailed_emotion_guidance.md` - 情感引导方案
 
 ### 流程优化（跳过已有分析）
 
-如果文件夹中已有综合报告（`{文件名}_report.md`）和CSV文件，程序会**自动跳过**信息收集和报告生成流程，直接生成社工攻击方案，避免重复消耗API tokens。
+如果文件夹中已有详细社工方案文件，程序会**自动跳过**所有分析流程。如果只有综合报告，则直接生成社工攻击方案和5个详细方案。如果只有CSV文件，则执行完整的8项AI分析任务。
 
 ### 测试文件示例
 
 - CSV数据：[胡歌_the_evil.csv](胡歌_the_evil.csv)
 - 分析报告：[胡歌_the_evil_report.md](胡歌_the_evil_report.md)
+
+## 相关文档
+
+- [项目结构图](项目结构图.md) - 详细的架构设计、数据流图、类结构图
+- [SKILL使用说明](.claude/skills/the-evil/SKILL.md) - Claude/OpenCode Skill 配置和使用
 
 ## 模块化设计
 
@@ -429,6 +441,10 @@ NEW_ANALYSIS_USER_PROMPT = """请分析xxx..."""
 
 ## 版本历史
 
+- **v2.1.0** - 详细社工方案版本
+  - 新增5个AI Agent详细实施计划（身份伪装、社交媒体渠道管理、话术准备、场景构建、情感引导）
+  - 新增智能跳过逻辑，避免重复消耗API tokens
+  - 优化工作流程，支持部分文件存在时跳过相应步骤
 - **v2.0.0** - 质量检查版本
   - 新增强制启用的质量检查功能
   - 新增单个任务报告自动保存

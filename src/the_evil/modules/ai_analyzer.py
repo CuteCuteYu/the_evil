@@ -542,6 +542,150 @@ def generate_social_engineering_plan(
     return result
 
 
+def generate_detailed_se_plan(
+    analyzer, se_plan_content, target_profile, prompts_module, model=None
+):
+    """
+    生成详细的社工攻击方案（5个Agent并行）
+
+    参数:
+        analyzer: AIAnalyzer实例
+        se_plan_content: 社工攻击方案内容
+        target_profile: 目标画像信息（综合报告摘要）
+        prompts_module: 提示词模块对象
+        model: 模型名称
+
+    返回:
+        包含5个详细方案的字典
+    """
+    if model is None:
+        model = DEFAULT_MODEL
+
+    tasks = [
+        (
+            prompts_module.IDENTITY_DISGUISE_SYSTEM_PROMPT,
+            prompts_module.IDENTITY_DISGUISE_USER_PROMPT.format(
+                se_plan=se_plan_content, target_profile=target_profile
+            ),
+            "identity_disguise",
+        ),
+        (
+            prompts_module.SOCIAL_MEDIA_CHANNEL_SYSTEM_PROMPT,
+            prompts_module.SOCIAL_MEDIA_CHANNEL_USER_PROMPT.format(
+                se_plan=se_plan_content, target_profile=target_profile
+            ),
+            "social_media_channel",
+        ),
+        (
+            prompts_module.SCRIPT_PREPARATION_SYSTEM_PROMPT,
+            prompts_module.SCRIPT_PREPARATION_USER_PROMPT.format(
+                se_plan=se_plan_content, target_profile=target_profile
+            ),
+            "script_preparation",
+        ),
+        (
+            prompts_module.SCENARIO_CONSTRUCTION_SYSTEM_PROMPT,
+            prompts_module.SCENARIO_CONSTRUCTION_USER_PROMPT.format(
+                se_plan=se_plan_content, target_profile=target_profile
+            ),
+            "scenario_construction",
+        ),
+        (
+            prompts_module.EMOTION_GUIDANCE_SYSTEM_PROMPT,
+            prompts_module.EMOTION_GUIDANCE_USER_PROMPT.format(
+                se_plan=se_plan_content, target_profile=target_profile
+            ),
+            "emotion_guidance",
+        ),
+    ]
+
+    results = {}
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_task = {}
+        for system_prompt, user_prompt, task_name in tasks:
+            future = executor.submit(
+                analyzer.call_ai, system_prompt, user_prompt, model=model
+            )
+            future_to_task[future] = task_name
+
+        for future in as_completed(future_to_task):
+            task_name = future_to_task[future]
+            try:
+                results[task_name] = future.result()
+                print(f"  [{task_name}] 详细方案生成完成")
+            except Exception as e:
+                print(f"  [{task_name}] 生成失败: {e}")
+                results[task_name] = f"生成失败: {e}"
+
+    return results
+
+
+def save_detailed_se_reports(detailed_results, output_dir, base_filename):
+    """
+    保存5个详细社工方案报告
+
+    参数:
+        detailed_results: 详细方案字典
+        output_dir: 输出目录
+        base_filename: 基础文件名
+
+    返回:
+        保存的文件路径列表
+    """
+    import os
+
+    if not output_dir:
+        output_dir = "."
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    task_name_map = {
+        "identity_disguise": "身份伪装",
+        "social_media_channel": "社交媒体渠道管理",
+        "script_preparation": "话术准备",
+        "scenario_construction": "场景构造",
+        "emotion_guidance": "情绪引导",
+    }
+
+    saved_files = []
+
+    for task_name, content in detailed_results.items():
+        report_filename = f"{base_filename}_detailed_{task_name}.md"
+        report_path = os.path.join(output_dir, report_filename)
+
+        report_content = f"""# 详细社工攻击方案 - {task_name_map.get(task_name, task_name)}
+
+## 伦理声明
+
+⚠️ **本报告仅供安全研究和防御演练使用**
+
+- 请勿将本方案用于未经授权的渗透测试
+- 旨在帮助目标人物加强安全意识，而非助长攻击行为
+- 生成的攻击方案应妥善保管，**不要分享给第三方**
+
+---
+
+## 方案内容
+
+{content}
+
+---
+*报告生成时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}*
+*分析模型: {DEFAULT_MODEL}*
+"""
+
+        try:
+            with open(report_path, "w", encoding="utf-8") as f:
+                f.write(report_content)
+            saved_files.append(os.path.abspath(report_path))
+            print(f"  [{task_name}] 报告已保存至: {report_path}")
+        except Exception as e:
+            print(f"  [{task_name}] 保存失败: {e}")
+
+    return saved_files
+
+
 def save_social_engineering_report(content, output_dir, base_filename):
     """
     保存社会工程学攻击方案报告

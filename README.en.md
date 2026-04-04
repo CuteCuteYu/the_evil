@@ -87,7 +87,7 @@ The UID can be found in the URL of the Weibo user homepage:
 
 ## AI Analysis Features
 
-The program automatically performs 7 parallel AI analysis tasks:
+The program automatically performs 8 parallel AI analysis tasks with **mandatory quality checking**:
 
 1. **Statistical Analysis** - Weibo count, interaction data, publish time distribution, etc.
 2. **Personality Analysis** - Analyze user personality traits from social engineering perspective
@@ -96,6 +96,8 @@ The program automatically performs 7 parallel AI analysis tasks:
 5. **Social Analysis** - Analyze user social circle from social network perspective
 6. **Emotion Analysis** - Analyze user's emotional expression from psychological perspective
 7. **Comprehensive Report** - Generate complete Markdown analysis report
+8. **Social Engineering Plan** - Generate social engineering attack plan based on analysis results (for security research only)
+9. **Detailed SE Plan (5 AI agents)** - Generate 5 detailed implementation plans based on the base SE plan
 
 ### Analysis Evidence Requirements
 
@@ -117,15 +119,26 @@ Each analysis conclusion must include an "**Analysis Evidence**" section, explai
   - `{filename}_emotion.md` - Emotion analysis report
 - **Social Engineering Report** (auto-generated):
   - `{filename}_social_engineering.md` - Social engineering attack plan (generated based on comprehensive report and CSV data, for security research only)
+- **Detailed SE Plan (5 AI agents, auto-generated)**:
+  - `{filename}_detailed_identity_disguise.md` - Identity disguise plan
+  - `{filename}_detailed_social_media_channel.md` - Social media channel management plan
+  - `{filename}_detailed_script_preparation.md` - Script preparation plan
+  - `{filename}_detailed_scenario_construction.md` - Scenario construction plan
+  - `{filename}_detailed_emotion_guidance.md` - Emotion guidance plan
 
 ### Workflow Optimization (Skip Existing Analysis)
 
-If the folder already contains a comprehensive report (`{filename}_report.md`) and CSV file, the program will **automatically skip** the information collection and report generation process and directly generate the social engineering attack plan, avoiding repeated API token consumption.
+If the folder already contains detailed SE plan files, the program will **automatically skip** all analysis. If only comprehensive report exists, it will directly generate the social engineering plan and 5 detailed plans. If only CSV exists, it will execute all 8 AI analysis tasks.
 
 ### Test Files Example
 
 - CSV data: [胡歌_the_evil.csv](胡歌_the_evil.csv)
 - Analysis report: [胡歌_the_evil_report.md](胡歌_the_evil_report.md)
+
+## Related Documentation
+
+- [Project Structure Diagram](项目结构图.md) - Detailed architecture design, data flow diagrams, class structure
+- [SKILL Usage Guide](.claude/skills/the-evil/SKILL.md) - Claude/OpenCode Skill configuration and usage
 
 ## Modular Design
 
@@ -286,7 +299,12 @@ Helper methods provided by `BaseCrawler`:
 
 ## Version History
 
-- v1.0.0 - Initial version, supports Weibo data crawling and 7 AI analyses
+- **v2.1.0** - Detailed SE Plan Version
+  - Added 5 AI Agent detailed implementation plans (identity disguise, social media channel management, script preparation, scenario construction, emotion guidance)
+  - Added intelligent skip logic to avoid repeated API token consumption
+  - Optimized workflow to skip corresponding steps when partial files exist
+- v2.0.0 - Quality check version, supports Weibo data crawling and 7 AI analyses
+- v1.0.0 - Initial version
 
 ## License
 

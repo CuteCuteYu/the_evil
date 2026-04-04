@@ -58,6 +58,8 @@ create_analysis_tasks = ai_analyzer.create_analysis_tasks
 format_report_prompt = ai_analyzer.format_report_prompt
 generate_social_engineering_plan = ai_analyzer.generate_social_engineering_plan
 save_social_engineering_report = ai_analyzer.save_social_engineering_report
+generate_detailed_se_plan = ai_analyzer.generate_detailed_se_plan
+save_detailed_se_reports = ai_analyzer.save_detailed_se_reports
 
 # 导入prompts模块
 prompts = import_module_from_path(
@@ -154,23 +156,66 @@ def analyze_with_ai(csv_file, model, api_key, base_url):
     base_filename = csv_filename.replace(".csv", "")
     report_file = os.path.join(csv_dir, f"{base_filename}_report.md")
 
-    # 检查是否已有综合报告和CSV文件，跳过信息收集直接生成社工方案
+    # 检查是否已有综合报告和CSV文件
     skip_analysis = os.path.exists(csv_file) and os.path.exists(report_file)
 
-    if skip_analysis:
-        print(f"检测到已有综合报告和CSV文件，跳过信息收集和报告生成...")
-        print(f"直接生成社会工程学攻击方案...\n")
+    # 检查是否已有详细社工方案（全部），是则全部跳过
+    detailed_report_exists = all(
+        os.path.exists(os.path.join(csv_dir, f"{base_filename}_detailed_{name}.md"))
+        for name in [
+            "identity_disguise",
+            "social_media_channel",
+            "script_preparation",
+            "scenario_construction",
+            "emotion_guidance",
+        ]
+    )
+
+    if detailed_report_exists:
+        print(f"检测到已有详细社工方案，跳过所有生成流程...")
+        print("=== 分析完成 ===")
+        return
+
+    # 检查是否已有基础社工攻击方案
+    se_report_file = os.path.join(csv_dir, f"{base_filename}_social_engineering.md")
+
+    # 创建AI分析器
+    try:
+        analyzer = AIAnalyzer(api_key=api_key, base_url=base_url)
+    except ValueError as e:
+        print(f"AI分析器初始化失败: {e}")
+        return
+
+    if skip_analysis and os.path.exists(se_report_file):
+        # CSV和综合报告存在，社工方案也存在 → 直接读取生成详细方案
+        print(f"检测到已有综合报告和社工方案，直接生成详细方案...")
+        with open(se_report_file, "r", encoding="utf-8") as f:
+            se_plan = f.read()
+    elif skip_analysis:
+        # CSV和综合报告存在，社工方案不存在 → 生成社工方案再生成详细方案
+        print(f"检测到已有综合报告，跳过信息收集...")
+        print(f"生成社工方案...\n")
+
+        with open(csv_file, "r", encoding="utf-8-sig") as f:
+            csv_content = f.read()
+        with open(report_file, "r", encoding="utf-8") as f:
+            report_content = f.read()
+
+        se_plan = generate_social_engineering_plan(
+            analyzer=analyzer,
+            report_content=report_content,
+            csv_content=csv_content,
+            prompts_module=prompts_module,
+            model=model,
+        )
+
+        save_social_engineering_report(
+            content=se_plan, output_dir=csv_dir, base_filename=base_filename
+        )
     else:
         # 读取CSV内容（供分析任务和社工方案生成使用）
         with open(csv_file, "r", encoding="utf-8-sig") as f:
             csv_content = f.read()
-
-        # 创建AI分析器
-        try:
-            analyzer = AIAnalyzer(api_key=api_key, base_url=base_url)
-        except ValueError as e:
-            print(f"AI分析器初始化失败: {e}")
-            return
 
         # 创建分析任务
         tasks = create_analysis_tasks(csv_content, prompts_module)
@@ -230,39 +275,65 @@ def analyze_with_ai(csv_file, model, api_key, base_url):
         print(f"综合报告已保存至: {report_file}\n")
 
     # ===== 以下是公共流程：生成社工攻击方案 =====
-    # 创建AI分析器（如未创建）
+
+    # 读取CSV内容和综合报告（如果还没读过的话）
     try:
-        analyzer = AIAnalyzer(api_key=api_key, base_url=base_url)
-    except ValueError as e:
-        print(f"AI分析器初始化失败: {e}")
-        return
+        with open(csv_file, "r", encoding="utf-8-sig") as f:
+            csv_content = f.read()
+    except:
+        csv_content = ""
 
-    # 读取CSV内容和综合报告
-    with open(csv_file, "r", encoding="utf-8-sig") as f:
-        csv_content = f.read()
+    try:
+        with open(report_file, "r", encoding="utf-8") as f:
+            report_content = f.read()
+    except:
+        report_content = ""
 
-    with open(report_file, "r", encoding="utf-8") as f:
-        report_content = f.read()
+    # 检查是否已有基础社工攻击方案
+    se_report_file = os.path.join(csv_dir, f"{base_filename}_social_engineering.md")
 
-    # 生成社会工程学攻击方案
-    print("正在生成社会工程学攻击方案...")
-    se_plan = generate_social_engineering_plan(
+    if os.path.exists(se_report_file):
+        print(f"检测到已有社会工程学攻击方案，直接生成详细方案...")
+        with open(se_report_file, "r", encoding="utf-8") as f:
+            se_plan = f.read()
+    else:
+        # 生成社会工程学攻击方案
+        print("正在生成社会工程学攻击方案...")
+        se_plan = generate_social_engineering_plan(
+            analyzer=analyzer,
+            report_content=report_content,
+            csv_content=csv_content,
+            prompts_module=prompts_module,
+            model=model,
+        )
+
+        save_social_engineering_report(
+            content=se_plan, output_dir=csv_dir, base_filename=base_filename
+        )
+
+    # 生成详细社工攻击方案（5个Agent并行）
+    print("正在生成详细社工攻击方案（5个Agent并行）...")
+
+    # 提取目标画像信息（使用综合报告的前5000字符作为摘要）
+    target_profile = report_content[:5000]
+
+    detailed_results = generate_detailed_se_plan(
         analyzer=analyzer,
-        report_content=report_content,
-        csv_content=csv_content,
+        se_plan_content=se_plan,
+        target_profile=target_profile,
         prompts_module=prompts_module,
         model=model,
     )
 
-    # 保存社会工程学攻击方案
-    se_report_file = save_social_engineering_report(
-        content=se_plan, output_dir=csv_dir, base_filename=base_filename
+    # 保存详细方案报告
+    saved_files = save_detailed_se_reports(
+        detailed_results=detailed_results,
+        output_dir=csv_dir,
+        base_filename=base_filename,
     )
 
     # 输出结果
     print("=== 分析完成 ===")
-    if se_report_file:
-        print(f"社工攻击方案已保存至: {se_report_file}")
 
 
 # 程序入口
